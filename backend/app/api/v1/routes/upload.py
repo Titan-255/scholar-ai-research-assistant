@@ -1,5 +1,5 @@
 import logging
-from fastapi import APIRouter, UploadFile, File, Depends
+from fastapi import APIRouter, UploadFile, File, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.schemas.responses import BaseResponse
@@ -8,6 +8,7 @@ from app.services.upload_service import UploadService
 from app.core.constants import MSG_UPLOAD_SUCCESS
 from app.api.deps import get_current_user
 from app.models.user import User
+from app.services.document_service import DocumentService
 
 logger = logging.getLogger("app.api.v1.routes.upload")
 router = APIRouter()
@@ -19,6 +20,7 @@ router = APIRouter()
     description="Accepts a multipart file upload. Validates it is a PDF and stores it locally under UUID name."
 )
 async def upload_pdf(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -30,6 +32,9 @@ async def upload_pdf(
     
     # Save the upload
     metadata = await UploadService.save_upload(db, file, current_user)
+    
+    # Enqueue background document intelligence pipeline processing
+    background_tasks.add_task(DocumentService.process_document_background, metadata.id)
     
     # Create the response
     data = UploadResponse(

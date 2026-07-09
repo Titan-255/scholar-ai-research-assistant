@@ -7,6 +7,7 @@ import {
   MessageSquare,
   CheckCircle,
   Clock,
+  AlertCircle,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
@@ -47,27 +48,23 @@ export const UploadPage: React.FC = () => {
   };
 
   const getStatusIcon = (status: PDFFile['status']) => {
-    switch (status) {
-      case 'Indexed':
-        return <CheckCircle className="h-4 w-4 text-emerald-500" />;
-      case 'Processing':
-        return <Clock className="h-4 w-4 text-amber-500 animate-spin" />;
-      default:
-        return <Clock className="h-4 w-4 text-indigo-500" />;
+    if (['Indexed', 'Ready', 'Completed'].includes(status)) {
+      return <CheckCircle className="h-4 w-4 text-emerald-500" />;
     }
+    if (status === 'Failed') {
+      return <AlertCircle className="h-4 w-4 text-rose-500" />;
+    }
+    return <Clock className="h-4 w-4 text-amber-500 animate-spin" />;
   };
 
   const getStatusVariant = (status: PDFFile['status']) => {
-    switch (status) {
-      case 'Indexed':
-        return 'success';
-      case 'Processing':
-        return 'warning';
-      case 'Ready':
-        return 'primary';
-      default:
-        return 'neutral';
+    if (['Indexed', 'Ready', 'Completed'].includes(status)) {
+      return 'success';
     }
+    if (status === 'Failed') {
+      return 'error';
+    }
+    return 'warning';
   };
 
   return (
@@ -135,9 +132,19 @@ export const UploadPage: React.FC = () => {
 
                         {/* Status cell */}
                         <td className="px-6 py-4">
-                          <div className="flex items-center space-x-2">
-                            {getStatusIcon(pdf.status)}
-                            <Badge variant={getStatusVariant(pdf.status)}>{pdf.status}</Badge>
+                          <div className="flex flex-col space-y-1.5 min-w-[120px]">
+                            <div className="flex items-center space-x-2">
+                              {getStatusIcon(pdf.status)}
+                              <Badge variant={getStatusVariant(pdf.status)}>{pdf.status}</Badge>
+                            </div>
+                            {!['Ready', 'Indexed', 'Completed', 'Failed'].includes(pdf.status) && pdf.progress !== undefined && (
+                              <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                <div 
+                                  className="bg-indigo-600 h-1.5 rounded-full transition-all duration-300"
+                                  style={{ width: `${pdf.progress}%` }}
+                                ></div>
+                              </div>
+                            )}
                           </div>
                         </td>
 
@@ -155,10 +162,10 @@ export const UploadPage: React.FC = () => {
                             </Button>
                             
                             <Button
-                              variant={pdf.status === 'Indexed' ? 'primary' : 'outline'}
+                              variant={['Indexed', 'Ready', 'Completed'].includes(pdf.status) ? 'primary' : 'outline'}
                               size="sm"
                               onClick={() => handleChat(pdf.id)}
-                              disabled={pdf.status === 'Processing'}
+                              disabled={!['Ready', 'Indexed', 'Completed'].includes(pdf.status)}
                               className="h-8 py-0 px-2.5"
                             >
                               <MessageSquare className="h-3.5 w-3.5" />
@@ -252,7 +259,7 @@ export const UploadPage: React.FC = () => {
                     setIsPreviewOpen(false);
                     handleChat(selectedPdf.id);
                   }}
-                  disabled={selectedPdf.status === 'Processing'}
+                  disabled={!['Ready', 'Indexed', 'Completed'].includes(selectedPdf.status)}
                 >
                   <MessageSquare className="h-3.5 w-3.5 mr-1.5" />
                   Discuss document

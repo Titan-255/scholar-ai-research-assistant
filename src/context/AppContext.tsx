@@ -149,6 +149,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           sizeBytes: item.size_bytes,
           uploadDate: item.upload_time.split(" ")[0],
           status: item.status,
+          progress: item.progress || 0,
           questionsCount: 0,
           totalChats: 0,
         }));
@@ -234,6 +235,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setActiveConversationId(null);
     }
   }, [user ? user.email : null]);
+
+  // Poll PDF statuses if any are still processing
+  useEffect(() => {
+    if (!user) return;
+    const hasProcessing = pdfs.some(
+      (p) => !['Ready', 'Indexed', 'Completed', 'Failed'].includes(p.status)
+    );
+
+    if (!hasProcessing) return;
+
+    const interval = setInterval(() => {
+      fetchPdfs();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [pdfs, user]);
+
 
   // Load detailed messages when active conversation shifts
   useEffect(() => {

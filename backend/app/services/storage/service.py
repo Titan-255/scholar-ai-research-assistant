@@ -49,3 +49,9 @@ class StorageService:
         """Checks if a file exists using the file's provider."""
         provider = cls.get_provider(provider_name)
         return provider.file_exists(s3_object_key, bucket_name, file_path)
+
+    @classmethod
+    def download_file_to_path(cls, provider_name: str, s3_object_key: Optional[str], bucket_name: Optional[str], file_path: Optional[str], dest_path: str) -> None:
+        """Downloads a file to a local path using the specified provider."""
+        provider = cls.get_provider(provider_name)
+        provider.download_file_to_path(s3_object_key, bucket_name, file_path, dest_path)

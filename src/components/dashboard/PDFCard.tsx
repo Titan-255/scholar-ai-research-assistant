@@ -13,16 +13,13 @@ interface PDFCardProps {
 
 export const PDFCard: React.FC<PDFCardProps> = ({ pdf, onChat, onDelete }) => {
   const getBadgeVariant = (status: PDFFile['status']) => {
-    switch (status) {
-      case 'Indexed':
-        return 'success';
-      case 'Processing':
-        return 'warning';
-      case 'Ready':
-        return 'primary';
-      default:
-        return 'neutral';
+    if (['Indexed', 'Ready', 'Completed'].includes(status)) {
+      return 'success';
     }
+    if (status === 'Failed') {
+      return 'error';
+    }
+    return 'warning';
   };
 
   return (
@@ -57,6 +54,19 @@ export const PDFCard: React.FC<PDFCardProps> = ({ pdf, onChat, onDelete }) => {
           </Badge>
         </div>
 
+        {/* Progress bar for background processing */}
+        {!['Ready', 'Indexed', 'Completed', 'Failed'].includes(pdf.status) && pdf.progress !== undefined && (
+          <div className="space-y-1">
+            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+              <div 
+                className="bg-indigo-600 h-1.5 rounded-full transition-all duration-300"
+                style={{ width: `${pdf.progress}%` }}
+              ></div>
+            </div>
+            <div className="text-[10px] text-slate-400 text-right">{pdf.progress}% processed</div>
+          </div>
+        )}
+
         {/* Info stats */}
         <div className="grid grid-cols-2 gap-4 py-2 border-y border-slate-50 dark:border-slate-800/50 text-xs font-semibold text-slate-500">
           <div>
@@ -72,10 +82,10 @@ export const PDFCard: React.FC<PDFCardProps> = ({ pdf, onChat, onDelete }) => {
         {/* Buttons */}
         <div className="flex items-center space-x-2 pt-1.5">
           <Button
-            variant={pdf.status === 'Indexed' ? 'primary' : 'outline'}
+            variant={['Indexed', 'Ready', 'Completed'].includes(pdf.status) ? 'primary' : 'outline'}
             size="sm"
             onClick={() => onChat(pdf.id)}
-            disabled={pdf.status === 'Processing'}
+            disabled={!['Ready', 'Indexed', 'Completed'].includes(pdf.status)}
             className="flex-1"
           >
             <MessageSquare className="h-3.5 w-3.5 mr-1.5" />

@@ -27,6 +27,12 @@ class Settings(BaseSettings):
     AWS_ENDPOINT_URL: Optional[str] = None
     STORAGE_PROVIDER: Optional[str] = None  # Force overrides e.g. "s3" or "local"
 
+    # OCR / Tesseract Settings
+    TESSERACT_PATH: Optional[str] = None
+    MAX_PAGES: int = 500
+    OCR_LANGUAGE: str = "eng"
+    TEMP_DIRECTORY: Optional[str] = None
+
     @property
     def active_storage_provider(self) -> str:
         """Determines the active storage provider dynamically based on credentials."""

@@ -27,8 +27,9 @@ class FileService:
                 stored_name=f.stored_filename,
                 size_bytes=f.file_size,
                 upload_time=f.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-                status=f.upload_status,
-                storage_provider=f.storage_provider
+                status=f.processing_status or f.upload_status or "Ready",
+                storage_provider=f.storage_provider,
+                progress=f.processing_progress or 0
             )
             for f in files
         ]
@@ -44,8 +45,9 @@ class FileService:
                 stored_name=f.stored_filename,
                 size_bytes=f.file_size,
                 upload_time=f.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-                status=f.upload_status,
-                storage_provider=f.storage_provider
+                status=f.processing_status or f.upload_status or "Ready",
+                storage_provider=f.storage_provider,
+                progress=f.processing_progress or 0
             )
         return None
 

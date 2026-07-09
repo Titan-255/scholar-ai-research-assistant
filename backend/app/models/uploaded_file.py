@@ -30,9 +30,20 @@ class UploadedFile(Base):
     upload_completed = Column(Boolean, default=False, nullable=False)
     storage_size = Column(Integer, nullable=True)
 
+    # Document Intelligence Extensions
+    processing_status = Column(String(50), default="Queued", nullable=False)
+    processing_progress = Column(Integer, default=0, nullable=False)
+    document_type = Column(String(50), nullable=True)
+    page_count = Column(Integer, nullable=True)
+    text_extracted = Column(Boolean, default=False, nullable=False)
+    ocr_completed = Column(Boolean, default=False, nullable=False)
+    last_processed = Column(DateTime, nullable=True)
+
     # Relationships
     user = relationship("User", back_populates="uploaded_files")
     file_metadata = relationship("FileMetadata", back_populates="uploaded_file", uselist=False, cascade="all, delete-orphan")
+    document_processing = relationship("DocumentProcessing", back_populates="uploaded_file", uselist=False, cascade="all, delete-orphan")
+    document_pages = relationship("DocumentPage", back_populates="uploaded_file", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<UploadedFile {self.original_filename} ({self.upload_status})>"

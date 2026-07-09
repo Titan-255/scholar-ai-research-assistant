@@ -16,6 +16,7 @@ class FileMetadata(BaseModel):
     upload_time: str
     status: str
     storage_provider: str = "local"
+    progress: int = 0
 
 class UploadResponse(BaseModel):
     original_name: str
@@ -24,6 +25,7 @@ class UploadResponse(BaseModel):
     upload_time: str
     status: str
     storage_provider: str = "local"
+    progress: int = 0
 
 class DownloadResponse(BaseModel):
     url: str

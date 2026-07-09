@@ -30,3 +30,5 @@ backend/*.db
 backend/*.log
 backend/uploads/
 backend/.pytest_cache/
+
+.vercel

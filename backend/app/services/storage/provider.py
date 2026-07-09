@@ -31,6 +31,11 @@ class StorageProvider(abc.ABC):
         """Checks if a file exists in the storage backend."""
         pass
 
+    @abc.abstractmethod
+    def download_file_to_path(self, s3_object_key: Optional[str], bucket_name: Optional[str], file_path: Optional[str], dest_path: str) -> None:
+        """Downloads the file from storage to a local path."""
+        pass
+
 
 class LocalStorageProvider(StorageProvider):
     def __init__(self, upload_dir: Optional[Path] = None):
@@ -81,6 +86,12 @@ class LocalStorageProvider(StorageProvider):
         if not file_path:
             return False
         return Path(file_path).exists()
+
+    def download_file_to_path(self, s3_object_key: Optional[str], bucket_name: Optional[str], file_path: Optional[str], dest_path: str) -> None:
+        import shutil
+        if not file_path or not os.path.exists(file_path):
+            raise FileNotFoundError(f"Local file does not exist: {file_path}")
+        shutil.copy2(file_path, dest_path)
 
 
 class S3StorageProvider(StorageProvider):
@@ -184,3 +195,14 @@ class S3StorageProvider(StorageProvider):
             return True
         except ClientError:
             return False
+
+    def download_file_to_path(self, s3_object_key: Optional[str], bucket_name: Optional[str], file_path: Optional[str], dest_path: str) -> None:
+        bucket = bucket_name or self.bucket_name
+        key = s3_object_key or file_path
+        if not key:
+            raise ValueError("s3_object_key or file_path is required for S3 download.")
+        try:
+            self.s3_client.download_file(bucket, key, dest_path)
+        except ClientError as e:
+            logger.error(f"S3 file download failed for key {key}: {e}")
+            raise HTTPException(status_code=500, detail=f"S3 Storage Download failed: {str(e)}")

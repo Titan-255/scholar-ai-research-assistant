@@ -7,7 +7,7 @@ export interface User {
   joinedDate: string;
 }
 
-export type PDFStatus = 'Ready' | 'Processing' | 'Indexed';
+export type PDFStatus = 'Ready' | 'Processing' | 'Indexed' | 'Queued' | 'Downloading' | 'Reading Metadata' | 'Extracting Text' | 'Running OCR' | 'Cleaning Text' | 'Saving Pages' | 'Completed' | 'Failed';
 
 export interface PDFFile {
   id: string;
@@ -18,6 +18,7 @@ export interface PDFFile {
   status: PDFStatus;
   questionsCount: number;
   totalChats: number;
+  progress?: number;
 }
 
 export interface Message {
