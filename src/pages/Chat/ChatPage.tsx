@@ -78,13 +78,13 @@ export const ChatPage: React.FC = () => {
     setInputText('');
   };
 
-  const handleNewChatSubmit = (e: React.FormEvent) => {
+  const handleNewChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPdfId) {
       addToast('error', 'Please select a document.');
       return;
     }
-    const newChatId = createNewChat(selectedPdfId);
+    const newChatId = await createNewChat(selectedPdfId);
     setIsNewChatModalOpen(false);
     setSelectedPdfId('');
     if (newChatId) {

@@ -81,8 +81,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // JWT fetch client helper
-  const getAuthHeaders = () => {
+  const getAuthHeaders = (): Record<string, string> => {
     const token = localStorage.getItem('ar_access_token');
     return token ? { 'Authorization': `Bearer ${token}` } : {};
   };
