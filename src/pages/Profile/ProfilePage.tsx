@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { User, Mail, Calendar, Edit, Check, FileText, MessageSquare } from 'lucide-react';
+import { User, Mail, Calendar, Edit, Check, FileText, MessageSquare, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/Card';
@@ -46,6 +46,10 @@ export const ProfilePage: React.FC = () => {
   const storageUsed = user?.storageUsed || 0;
   const maxStorage = user?.maxStorage || 100;
   const storagePercentage = Math.min(100, Math.round((storageUsed / maxStorage) * 100));
+
+  const completedCount = pdfs.filter(p => ['Ready', 'Indexed', 'Completed'].includes(p.status)).length;
+  const processingCount = pdfs.filter(p => !['Ready', 'Indexed', 'Completed', 'Failed'].includes(p.status)).length;
+  const failedCount = pdfs.filter(p => p.status === 'Failed').length;
 
   return (
     <DashboardLayout>
@@ -95,6 +99,31 @@ export const ProfilePage: React.FC = () => {
                   </span>
                   <span>{conversations.length} threads</span>
                 </div>
+                <div className="flex items-center justify-between py-1 border-t border-slate-50 dark:border-slate-800/50 pt-3">
+                  <span className="flex items-center text-slate-400 font-normal">
+                    <CheckCircle className="h-4 w-4 mr-2 text-emerald-500" />
+                    Indexed Vaultees
+                  </span>
+                  <span>{completedCount} ready</span>
+                </div>
+                {processingCount > 0 && (
+                  <div className="flex items-center justify-between py-1 border-t border-slate-50 dark:border-slate-800/50 pt-3">
+                    <span className="flex items-center text-slate-400 font-normal">
+                      <Clock className="h-4 w-4 mr-2 text-amber-500 animate-spin" />
+                      Processing Pipeline
+                    </span>
+                    <span>{processingCount} processing</span>
+                  </div>
+                )}
+                {failedCount > 0 && (
+                  <div className="flex items-center justify-between py-1 border-t border-slate-50 dark:border-slate-800/50 pt-3">
+                    <span className="flex items-center text-slate-400 font-normal">
+                      <AlertCircle className="h-4 w-4 mr-2 text-rose-500" />
+                      Failed Ingestions
+                    </span>
+                    <span>{failedCount} failed</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
